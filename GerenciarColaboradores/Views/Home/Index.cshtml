@@ -1,0 +1,87 @@
+﻿@model GerenciarColaboradores.Models.ColaboradorModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+<div class="text-center">
+    @if (TempData["AlertMensage"] != null)
+    {
+        <div class="alert alert-success">
+            <strong>Success  !</strong>  @TempData["AlertMensage"]
+        </div>
+    }
+    <div class="card-title" style="display:block">
+        <h1>Bem Vindo</h1>
+        <h2>Sistema para Gerenciamento de Colaboradores</h2>
+    </div>
+    <div class="card-body">
+        <div class="row mx-lg-n5">
+            <a class="col py-3 px-lg-5 border bg-light">
+                @using (Html.BeginForm("BuscarColaboradores", "Home", FormMethod.Get))
+                {
+
+                    <form class="navbar-form navbar-right" role="search">
+                        <div>@Html.Label("Buscar todos os Colaboradores")</div>
+                        <button type="submit" class="custom-switch">Pesquisar</button>
+                    </form>
+                }
+            </a>
+            <a class="col py-3 px-lg-5 border bg-light">
+                @using (Html.BeginForm("BuscarColaboradoresPeloNome", "Home", FormMethod.Post))
+                {
+
+                    <form class="navbar-form navbar-right" role="search">
+                        <div>@Html.Label("Buscar colaborador pelo Nome")</div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(c => c.Nome)
+                        </div>
+                        <button type="submit" class="custom-switch">Pesquisar</button>
+                    </form>
+                }
+            </a>
+        </div>
+        <div class="row mx-lg-n5">
+            <div class="col py-3 px-lg-5 border bg-light">
+                @using (Html.BeginForm("CadastrarColaborador", "Home", FormMethod.Post))
+                {
+                    <div>
+                        @Html.Label("Cadastrar Colaborador")
+                    </div>
+                    <form method="post" class="navbar-form navbar-right" role="search" id="form-Cadastro">
+                        @Html.Label("Nome")
+                        <div class="form-group">
+                            @Html.TextBoxFor(c => c.Nome)
+                        </div>
+                        @Html.Label("Detalhes")
+                        <div class="form-group">
+                            @Html.TextBoxFor(c => c.Detalhes)
+                        </div>
+                        <button type="submit" id="btnCadastradoComSucesso" class="custom-switch">Cadastrar</button>
+                    </form>
+                }
+            </div>
+            <div class="col py-3 px-lg-5 border bg-light">
+                @using (Html.BeginForm("RemoverColaborador", "Home", FormMethod.Post))
+                {
+                    <div>
+                        @Html.Label("Excluir Colaborador")
+                    </div>
+                    <form method="post" class="navbar-form navbar-right" role="search" id="form-Cadastro">
+                        <div class="form-group">
+                            @Html.TextAreaFor(c => c.Nome, new { placeholder = "Nome do Colaborador" })
+                        </div>
+                        <button type="submit" id="btnCadastradoComSucesso" class="custom-switch">Excluir</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+</div>
