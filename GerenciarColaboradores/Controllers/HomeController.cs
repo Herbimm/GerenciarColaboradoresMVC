@@ -18,11 +18,15 @@ namespace GerenciarColaboradores.Controllers
     {
         private readonly HttpClient _httpclient;
         private readonly ILogger<HomeController> _logger;
+        private readonly HttpClient _jwtAut;
+
         public HomeController(ILogger<HomeController> logger)
         {
             _httpclient = new HttpClient();
             _httpclient.BaseAddress = new Uri("http://localhost:26278");
             _logger = logger;
+            _jwtAut = new HttpClient();
+            _jwtAut.BaseAddress = new Uri("http://localhost:5191");
         }        
         public async Task<IActionResult> BuscarColaboradoresAsync()
         {
@@ -71,6 +75,19 @@ namespace GerenciarColaboradores.Controllers
         {
             return View();
         }
+        public async Task<IActionResult> Login(LoginModel loginModel)
+        {
+            
+            return View();
+        }
+        public async Task<IActionResult> LoginAuth(LoginModel loginModel)
+        {
+
+            var convertJson = new StringContent(JsonConvert.SerializeObject(loginModel), Encoding.UTF8, "application/json");
+            var login = await _jwtAut.PostAsync("Authentication/Login", convertJson);
+            return View();
+        }
+
 
         public IActionResult Privacy()
         {
