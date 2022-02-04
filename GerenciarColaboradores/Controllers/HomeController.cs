@@ -1,4 +1,6 @@
 ﻿using GerenciarColaboradores.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -8,9 +10,12 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace GerenciarColaboradores.Controllers
 {    
@@ -30,6 +35,7 @@ namespace GerenciarColaboradores.Controllers
         }        
         public async Task<IActionResult> BuscarColaboradoresAsync()
         {
+           
             var buscarcolaborador = await _httpclient.GetAsync("/GerenciarColaboradores/BuscarColaboradores");
             var content = buscarcolaborador.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<IEnumerable<ColaboradorModel>>(content.Result);
@@ -78,13 +84,22 @@ namespace GerenciarColaboradores.Controllers
         public async Task<IActionResult> Login(LoginModel loginModel)
         {
             
-            return View();
+            return View("_Login");
         }
         public async Task<IActionResult> LoginAuth(LoginModel loginModel)
         {
-
-            var convertJson = new StringContent(JsonConvert.SerializeObject(loginModel), Encoding.UTF8, "application/json");
+           
+           var convertJson = new StringContent(JsonConvert.SerializeObject(loginModel), Encoding.UTF8, "application/json");
             var login = await _jwtAut.PostAsync("Authentication/Login", convertJson);
+            var token = await login.Content.ReadAsStringAsync();            
+            _jwtAut.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var teste = await _jwtAut.GetAsync("Authentication/Teste");
+           
+            await HttpContext.GetTokenAsync(login.ToString());
+            if (login.IsSuccessStatusCode)
+            {
+                return View();
+            }
             return View();
         }
 
