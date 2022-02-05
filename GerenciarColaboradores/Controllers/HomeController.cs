@@ -1,5 +1,7 @@
-﻿using GerenciarColaboradores.Models;
+﻿using AuthenticationClient;
+using GerenciarColaboradores.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -21,12 +23,15 @@ namespace GerenciarColaboradores.Controllers
 {    
     public class HomeController : Controller
     {
+        public static HttpClient Httpclient;
+        private readonly IAuthenticationClient _authenticationClient;
         private readonly HttpClient _httpclient;
         private readonly ILogger<HomeController> _logger;
         private readonly HttpClient _jwtAut;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IAuthenticationClient authenticationClient)
         {
+            _authenticationClient = authenticationClient;
             _httpclient = new HttpClient();
             _httpclient.BaseAddress = new Uri("http://localhost:26278");
             _logger = logger;
@@ -35,7 +40,7 @@ namespace GerenciarColaboradores.Controllers
         }        
         public async Task<IActionResult> BuscarColaboradoresAsync()
         {
-           
+            var teste = await _jwtAut.GetAsync("Authentication/Teste");
             var buscarcolaborador = await _httpclient.GetAsync("/GerenciarColaboradores/BuscarColaboradores");
             var content = buscarcolaborador.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<IEnumerable<ColaboradorModel>>(content.Result);
@@ -67,6 +72,8 @@ namespace GerenciarColaboradores.Controllers
         }
         public async Task<IActionResult> RemoverColaboradorAsync(string nome)
         {
+            
+            var teste = await _jwtAut.GetAsync("Authentication/Teste");
             var parameters = JsonConvert.SerializeObject(nome);
             var content = new StringContent(JsonConvert.SerializeObject(nome), Encoding.UTF8, "application/json");
             var removerColaborador = await _httpclient.PostAsync("/GerenciarColaboradores/RemoverColaborador", content);
@@ -88,17 +95,20 @@ namespace GerenciarColaboradores.Controllers
         }
         public async Task<IActionResult> LoginAuth(LoginModel loginModel)
         {
-           
-           var convertJson = new StringContent(JsonConvert.SerializeObject(loginModel), Encoding.UTF8, "application/json");
-            var login = await _jwtAut.PostAsync("Authentication/Login", convertJson);
-            var token = await login.Content.ReadAsStringAsync();            
-            _jwtAut.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            var teste = await _jwtAut.GetAsync("Authentication/Teste");
-           
-            await HttpContext.GetTokenAsync(login.ToString());
+
+            object obj = "ok";
+            var testeToken = await _authenticationClient.Post<object>("aasd", obj);
+            var convertJson = new StringContent(JsonConvert.SerializeObject(loginModel), Encoding.UTF8, "application/json");
+            var login = await _jwtAut.PostAsync("Authentication/Login", convertJson);            
+            var token = await login.Content.ReadAsStringAsync();
+            _jwtAut.DefaultRequestHeaders.Remove("Authorization");
+            _jwtAut.DefaultRequestHeaders.Add("Authorization", "Bearer "+ token);
+            
+            var teste = await _jwtAut.GetAsync("Authentication/Teste");           
+
             if (login.IsSuccessStatusCode)
             {
-                return View();
+                return RedirectToAction("Index");
             }
             return View();
         }

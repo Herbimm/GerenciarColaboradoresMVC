@@ -1,3 +1,5 @@
+using AuthenticationClient;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -29,7 +31,9 @@ namespace GerenciarColaboradores
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+           
             services.AddControllersWithViews();
+            services.AddScoped<IAuthenticationClient, AuthenticationClient>();
             services.AddCors();
             services.AddAuthentication(options =>
             {
@@ -39,9 +43,9 @@ namespace GerenciarColaboradores
             })
             .AddCookie("CookieAuth", config =>
             {
-                config.Cookie.Name = "Grandmas.Cookie";
+                config.Cookie.Name = "authcook";
                 config.ExpireTimeSpan = TimeSpan.FromDays(1);
-                config.LoginPath = "/Home/Authenticate";
+                config.LoginPath = "/Home/LoginAuth";
             });
 
         }      
@@ -59,7 +63,7 @@ namespace GerenciarColaboradores
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
