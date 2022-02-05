@@ -24,13 +24,15 @@ namespace GerenciarColaboradores.Controllers
     public class HomeController : Controller
     {
         public static HttpClient Httpclient;
+        private readonly IToken _token;
         private readonly IAuthenticationClient _authenticationClient;
         private readonly HttpClient _httpclient;
         private readonly ILogger<HomeController> _logger;
         private readonly HttpClient _jwtAut;
 
-        public HomeController(ILogger<HomeController> logger, IAuthenticationClient authenticationClient)
+        public HomeController(ILogger<HomeController> logger, IAuthenticationClient authenticationClient, IToken token)
         {
+            _token = token;
             _authenticationClient = authenticationClient;
             _httpclient = new HttpClient();
             _httpclient.BaseAddress = new Uri("http://localhost:26278");
@@ -40,6 +42,8 @@ namespace GerenciarColaboradores.Controllers
         }        
         public async Task<IActionResult> BuscarColaboradoresAsync()
         {
+            var token = new Token();
+            var tokennovo = token.GetToken();            
             var teste = await _jwtAut.GetAsync("Authentication/Teste");
             var buscarcolaborador = await _httpclient.GetAsync("/GerenciarColaboradores/BuscarColaboradores");
             var content = buscarcolaborador.Content.ReadAsStringAsync();
@@ -95,6 +99,10 @@ namespace GerenciarColaboradores.Controllers
         }
         public async Task<IActionResult> LoginAuth(LoginModel loginModel)
         {
+            var getToken = _token.GetToken();            
+            var convertJson1 = new StringContent(JsonConvert.SerializeObject(loginModel), Encoding.UTF8, "application/json");
+            var login1 = await _jwtAut.PostAsync("Authentication/Login", convertJson1);
+            var token1 = await login1.Content.ReadAsStringAsync();            
 
             object obj = "ok";
             var testeToken = await _authenticationClient.Post<object>("aasd", obj);

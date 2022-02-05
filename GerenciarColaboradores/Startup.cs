@@ -34,6 +34,7 @@ namespace GerenciarColaboradores
            
             services.AddControllersWithViews();
             services.AddScoped<IAuthenticationClient, AuthenticationClient>();
+            services.AddSingleton<IToken, Token>();            
             services.AddCors();
             services.AddAuthentication(options =>
             {
