@@ -42,8 +42,9 @@ namespace GerenciarColaboradores.Controllers
         }        
         public async Task<IActionResult> BuscarColaboradoresAsync()
         {
-            var token = new Token();
-            var tokennovo = token.GetToken();            
+            var getToken = await _token.GetToken();
+            _jwtAut.DefaultRequestHeaders.Remove("Authorization");
+            _jwtAut.DefaultRequestHeaders.Add("Authorization","Bearer " + getToken);
             var teste = await _jwtAut.GetAsync("Authentication/Teste");
             var buscarcolaborador = await _httpclient.GetAsync("/GerenciarColaboradores/BuscarColaboradores");
             var content = buscarcolaborador.Content.ReadAsStringAsync();
